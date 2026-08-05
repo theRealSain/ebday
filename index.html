@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Happy Birthday, Emil ❤️</title>
+  <meta name="description" content="A heartfelt birthday celebration — made with love." />
+  <meta property="og:title" content="Happy Birthday ❤️" />
+  <meta property="og:description" content="A special birthday experience, just for you." />
+
+  <!-- Tailwind CSS v3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          screens: {
+            'xs': '400px',
+          },
+          colors: {
+            midnight: {
+              950: '#030617',
+              900: '#0a0e27',
+              800: '#111847',
+              700: '#1a2060',
+              600: '#243078',
+              500: '#2d3a8c',
+            },
+            accent: {
+              blue: '#4F7CFF',
+              sky: '#7FB2FF',
+              ice: '#D6ECFF',
+              royal: '#2F4FCC',
+              steel: '#8FA8D9',
+            }
+          },
+          fontFamily: {
+            body: ['Poppins', 'sans-serif'],
+            display: ['Exo', 'sans-serif'],
+            handwrite: ['Caveat', 'cursive'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-slow': 'float 8s ease-in-out infinite',
+            'float-slower': 'float 12s ease-in-out infinite',
+            'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+            'shimmer': 'shimmer 3s ease-in-out infinite',
+            'spin-slow': 'spin 20s linear infinite',
+            'bounce-gentle': 'bounce-gentle 3s ease-in-out infinite',
+            'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+            'heartbeat': 'heartbeat 0.6s ease-in-out',
+            'wiggle': 'wiggle 0.5s ease-in-out',
+            'flicker': 'flicker 0.15s ease-in-out 3',
+          },
+          keyframes: {
+            'float': {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            'pulse-glow': {
+              '0%, 100%': { boxShadow: '0 0 20px rgba(79, 124, 255,0.3)' },
+              '50%': { boxShadow: '0 0 40px rgba(79, 124, 255,0.6), 0 0 80px rgba(79, 124, 255,0.3)' },
+            },
+            'shimmer': {
+              '0%': { backgroundPosition: '-200% center' },
+              '100%': { backgroundPosition: '200% center' },
+            },
+            'bounce-gentle': {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            'fade-in-up': {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            'heartbeat': {
+              '0%': { transform: 'scale(1)' },
+              '25%': { transform: 'scale(1.2)' },
+              '50%': { transform: 'scale(1)' },
+              '75%': { transform: 'scale(1.15)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            'wiggle': {
+              '0%, 100%': { transform: 'rotate(0deg)' },
+              '25%': { transform: 'rotate(-5deg)' },
+              '75%': { transform: 'rotate(5deg)' },
+            },
+            'flicker': {
+              '0%': { opacity: '1' },
+              '50%': { opacity: '0.3' },
+              '100%': { opacity: '0' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Exo:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link rel="stylesheet" href="src/style.css" />
+</head>
+<body class="bg-midnight-950 text-white font-body overflow-x-hidden">
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- BACKGROUND CANVAS -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <canvas id="particles-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- NIGHT MODE TOGGLE -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <button id="night-toggle" class="fixed z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all duration-300 group" style="top: max(1.5rem, env(safe-area-inset-top)); right: max(1.5rem, env(safe-area-inset-right));" aria-label="Toggle night mode">
+    <i data-lucide="moon" class="w-5 h-5 text-white/80 group-hover:text-accent-steel transition-colors" id="night-icon-moon"></i>
+    <i data-lucide="sun" class="w-5 h-5 text-accent-steel hidden" id="night-icon-sun"></i>
+  </button>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MUSIC PLAYER (Floating) -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="music-player" class="fixed z-50 transition-all duration-500" style="top: max(1.5rem, env(safe-area-inset-top)); left: max(1.5rem, env(safe-area-inset-left));">
+    <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl min-w-[200px]" id="music-player-inner">
+      <!-- Compact View -->
+      <div class="flex items-center gap-3">
+        <button id="music-play-btn" class="w-10 h-10 rounded-full bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center hover:bg-accent-blue/40 active:scale-90 transition-all flex-shrink-0" aria-label="Play music">
+          <i data-lucide="play" class="w-4 h-4 text-accent-blue" id="music-icon-play"></i>
+          <i data-lucide="pause" class="w-4 h-4 text-accent-blue hidden" id="music-icon-pause"></i>
+        </button>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs text-white/60 truncate">♪ Happy Birthday - Background Score</p>
+          <div class="mt-1 h-1 bg-white/10 rounded-full overflow-hidden cursor-pointer" id="music-progress-bar">
+            <div class="h-full bg-accent-blue/60 rounded-full transition-all duration-100" style="width: 0%;" id="music-progress"></div>
+          </div>
+        </div>
+        <button id="music-expand-btn" class="w-6 h-6 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors" aria-label="Expand player">
+          <i data-lucide="chevron-down" class="w-4 h-4" id="music-expand-icon"></i>
+        </button>
+      </div>
+      <!-- Expanded View -->
+      <div id="music-expanded" class="hidden mt-3 pt-3 border-t border-white/10">
+        <div class="flex items-center gap-2">
+          <button id="music-mute-btn" class="w-8 h-8 flex items-center justify-center text-white/50 hover:text-white active:scale-90 transition-all" aria-label="Mute">
+            <i data-lucide="volume-2" class="w-4 h-4" id="music-icon-volume"></i>
+            <i data-lucide="volume-x" class="w-4 h-4 hidden" id="music-icon-muted"></i>
+          </button>
+          <input type="range" id="music-volume" min="0" max="100" value="70" class="flex-1 h-1 accent-accent-blue cursor-pointer" />
+        </div>
+        <p class="text-[10px] text-white/30 mt-2 text-center" id="music-time">0:00 / 0:00</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- LIGHTBOX OVERLAY -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center" role="dialog">
+    <div class="absolute inset-0 bg-midnight-950/90 backdrop-blur-2xl" id="lightbox-overlay"></div>
+    <button id="lightbox-close" class="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all" aria-label="Close">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    <button id="lightbox-prev" class="absolute left-4 md:left-8 z-10 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all" aria-label="Previous">
+      <i data-lucide="chevron-left" class="w-5 h-5"></i>
+    </button>
+    <button id="lightbox-next" class="absolute right-4 md:right-8 z-10 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all" aria-label="Next">
+      <i data-lucide="chevron-right" class="w-5 h-5"></i>
+    </button>
+    <div class="relative z-10 max-w-4xl max-h-[85vh] p-4">
+      <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl" />
+      <p id="lightbox-caption" class="text-center text-white/70 text-sm mt-4 font-light"></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MAIN CONTENT -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <main class="relative z-10">
+
+    <!-- ── SECTION 1: LANDING ── -->
+    <section id="landing" class="min-h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden">
+      <div class="relative z-10">
+        <p class="text-accent-blue font-bold text-lg md:text-xl tracking-widest uppercase mb-4 opacity-0" id="landing-subtitle-top">Happy Birthday 💙</p>
+        <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 opacity-0" id="landing-name">
+          EMIL
+        </h1>
+        <p class="text-white/60 text-lg md:text-xl font-light max-w-md mx-auto mb-12 opacity-0" id="landing-subtitle">
+          Today is all about you.
+        </p>
+
+        <!-- Animated Birthday Illustration -->
+        <div class="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-12 opacity-0" id="landing-illustration">
+          <div class="cake-illustration">
+            <div class="cake-base"></div>
+            <div class="cake-middle"></div>
+            <div class="cake-top"></div>
+            <div class="cake-candle c1"><div class="flame"></div></div>
+            <div class="cake-candle c2"><div class="flame"></div></div>
+            <div class="cake-candle c3"><div class="flame"></div></div>
+            <div class="cake-sparkle s1">✦</div>
+            <div class="cake-sparkle s2">✦</div>
+            <div class="cake-sparkle s3">✧</div>
+            <div class="cake-sparkle s4">✦</div>
+          </div>
+        </div>
+
+        <button id="begin-journey-btn" class="group relative px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-sky text-white font-semibold text-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(79, 124, 255,0.4)] active:scale-95 animate-pulse-glow opacity-0">
+          <span class="relative z-10">Begin Our Journey</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-accent-sky to-accent-blue opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div class="ripple-container absolute inset-0 overflow-hidden rounded-full"></div>
+        </button>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0" id="scroll-indicator">
+        <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+          <div class="w-1 h-3 bg-white/50 rounded-full mt-2 animate-bounce-gentle"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 2: AGE COUNTER ── -->
+    <section id="countdown" class="min-h-screen flex flex-col items-center justify-center text-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold mb-4 section-heading">Your Time on Earth</h2>
+      <p class="text-white/50 mb-12 text-lg">since the moment you were born — 11 Aug 2003</p>
+
+      <!-- Age Display -->
+      <div id="countdown-display" class="flex flex-nowrap justify-center items-stretch gap-1.5 xs:gap-2 sm:gap-4 md:gap-6 w-full max-w-full">
+        <div class="countdown-card">
+          <span class="text-lg xs:text-xl sm:text-3xl md:text-6xl font-bold text-white whitespace-nowrap" id="cd-years">00</span>
+          <span class="text-[0.55rem] xs:text-[0.6rem] sm:text-xs md:text-sm text-white/40 uppercase tracking-wide md:tracking-wider mt-1 md:mt-2 whitespace-nowrap">Years</span>
+        </div>
+        <div class="countdown-card">
+          <span class="text-lg xs:text-xl sm:text-3xl md:text-6xl font-bold text-white whitespace-nowrap" id="cd-days">00</span>
+          <span class="text-[0.55rem] xs:text-[0.6rem] sm:text-xs md:text-sm text-white/40 uppercase tracking-wide md:tracking-wider mt-1 md:mt-2 whitespace-nowrap">Days</span>
+        </div>
+        <div class="countdown-card">
+          <span class="text-lg xs:text-xl sm:text-3xl md:text-6xl font-bold text-white whitespace-nowrap" id="cd-hours">00</span>
+          <span class="text-[0.55rem] xs:text-[0.6rem] sm:text-xs md:text-sm text-white/40 uppercase tracking-wide md:tracking-wider mt-1 md:mt-2 whitespace-nowrap">Hours</span>
+        </div>
+        <div class="countdown-card">
+          <span class="text-lg xs:text-xl sm:text-3xl md:text-6xl font-bold text-white whitespace-nowrap" id="cd-minutes">00</span>
+          <span class="text-[0.55rem] xs:text-[0.6rem] sm:text-xs md:text-sm text-white/40 uppercase tracking-wide md:tracking-wider mt-1 md:mt-2 whitespace-nowrap">Min</span>
+        </div>
+        <div class="countdown-card">
+          <span class="text-lg xs:text-xl sm:text-3xl md:text-6xl font-bold text-white whitespace-nowrap" id="cd-seconds">00</span>
+          <span class="text-[0.55rem] xs:text-[0.6rem] sm:text-xs md:text-sm text-white/40 uppercase tracking-wide md:tracking-wider mt-1 md:mt-2 whitespace-nowrap">Sec</span>
+        </div>
+      </div>
+      <p class="text-accent-blue/70 text-sm mt-10 tracking-wide">...and counting, every second more of you in this world ❤️</p>
+    </section>
+
+    <!-- ── SECTION 4: TIMELINE ── -->
+    <section id="timeline" class="min-h-screen px-6 py-20 relative max-w-5xl mx-auto">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Our Timeline</h2>
+      <p class="text-white/50 text-center mb-16 text-lg">A journey through our beautiful moments</p>
+
+      <div class="relative" id="timeline-container">
+        <!-- Center line -->
+        <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 md:-translate-x-1/2" id="timeline-line">
+          <div class="w-full bg-accent-blue/60 rounded-full transition-all duration-300" id="timeline-line-fill" style="height: 0%;"></div>
+        </div>
+        <!-- Timeline items get inserted by JS -->
+        <div id="timeline-items" class="space-y-12 md:space-y-20"></div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 5: LOVE LETTER ── -->
+    <section id="love-letter" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Remembering The Letter</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Click the envelope to read</p>
+
+      <div class="relative" id="envelope-container">
+        <!-- Envelope -->
+        <div class="envelope cursor-pointer" id="envelope">
+          <div class="envelope-back"></div>
+          <div class="envelope-flap"></div>
+          <div class="envelope-front">
+            <span class="text-accent-blue text-2xl">❤️</span>
+            <p class="text-white text-sm mt-1 font-medium">For You</p>
+          </div>
+        </div>
+
+        <!-- Letter (hidden initially) -->
+        <div id="letter" class="hidden mt-8 max-w-lg w-full">
+          <div class="letter-paper bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl">
+            <p class="text-accent-blue text-sm mb-6 text-center font-bold tracking-widest uppercase">To My Dearest Emil</p>
+            <div id="letter-content" class="space-y-4 text-white/80 text-sm leading-relaxed">
+              <!-- Lines appear one by one via JS -->
+            </div>
+              <p class="text-right text-accent-blue mt-8 text-sm font-bold text-xl">Forever Yours ❤️</p>
+          </div>
+          <button id="letter-close" class="mx-auto mt-6 px-6 py-2 rounded-full bg-white/10 text-white/60 text-sm hover:bg-white/20 active:scale-90 transition-all flex items-center gap-2">
+            <i data-lucide="mail" class="w-4 h-4"></i> Close Letter
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 6: REASONS I LOVE YOU ── -->
+    <section id="reasons" class="min-h-screen px-6 py-20 relative max-w-6xl mx-auto">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">50 Reasons I Love You</h2>
+      <p class="text-white/50 text-center mb-4 text-lg">Click each card to reveal a reason</p>
+      <p class="text-accent-blue text-center mb-10 text-sm" id="reasons-counter">0 / 50 revealed</p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-3 md:gap-4" id="reasons-grid">
+        <!-- 50 cards inserted by JS -->
+      </div>
+
+      <button id="reasons-reveal-all" class="mx-auto mt-10 px-6 py-3 rounded-full bg-white/10 text-white/60 hover:bg-white/20 active:scale-90 transition-all flex items-center gap-2 text-sm">
+        <i data-lucide="eye" class="w-4 h-4"></i> Reveal All
+      </button>
+    </section>
+
+    <!-- ── SECTION 7: INTERACTIVE HEART ── -->
+    <section id="interactive-heart" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Click With Love</h2>
+      <p class="text-white/50 text-center mb-12 text-lg" id="heart-message">Every click means one more reason I love you</p>
+
+      <div class="relative">
+        <button id="heart-btn" class="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center group" aria-label="Click heart">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_30px_rgba(79, 124, 255,0.4)] transition-all duration-300 group-hover:drop-shadow-[0_0_50px_rgba(79, 124, 255,0.6)]" id="heart-svg">
+            <defs>
+              <linearGradient id="heart-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#4F7CFF" />
+                <stop offset="100%" style="stop-color:#7FB2FF" />
+              </linearGradient>
+            </defs>
+            <path d="M50 88 C25 65 5 50 5 30 C5 15 17 5 30 5 C38 5 45 10 50 18 C55 10 62 5 70 5 C83 5 95 15 95 30 C95 50 75 65 50 88Z" fill="url(#heart-gradient)" />
+          </svg>
+          <!-- Particles container -->
+          <div id="heart-particles" class="absolute inset-0 pointer-events-none"></div>
+        </button>
+      </div>
+      <p class="mt-8 text-2xl md:text-3xl font-bold text-accent-blue" id="heart-counter">💙 0</p>
+      <p class="text-white/40 text-sm mt-2">clicks of love</p>
+    </section>
+
+    <!-- ── SECTION 8: GIFT BOXES ── -->
+    <section id="gift-boxes" class="min-h-screen px-6 py-20 relative max-w-5xl mx-auto">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Virtual Gifts</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Click each gift to unwrap your surprise</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8" id="gift-grid">
+        <!-- 6 gift boxes inserted by JS -->
+      </div>
+    </section>
+
+    <!-- ── SECTION 9: CAKE INTERACTION ── -->
+    <section id="cake" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Make a Wish</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Close your eyes, make a wish, then blow the candles</p>
+
+      <div class="relative" id="cake-container">
+        <div class="cake-big">
+          <div class="cake-big-base"></div>
+          <div class="cake-big-middle"></div>
+          <div class="cake-big-top"></div>
+          <div id="cake-candles-23" class="absolute left-1/2 -translate-x-1/2 flex items-center gap-4" style="bottom: 158px;">
+            <div class="relative flex items-center justify-center">
+              <div class="flame big-flame" id="flame-1"></div>
+              <span class="cake-digit font-display text-6xl md:text-8xl leading-none">2</span>
+            </div>
+            <div class="relative flex items-center justify-center">
+              <div class="flame big-flame" id="flame-2"></div>
+              <span class="cake-digit font-display text-6xl md:text-8xl leading-none">3</span>
+            </div>
+          </div>
+        </div>
+        <div id="cake-sparkles" class="absolute inset-0 pointer-events-none hidden"></div>
+      </div>
+
+      <button id="blow-candles-btn" class="mt-10 px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-sky text-white font-semibold hover:shadow-[0_0_30px_rgba(79, 124, 255,0.4)] active:scale-95 transition-all">
+        🌬️ Blow the Candles
+      </button>
+      <p id="cake-message" class="hidden mt-6 text-2xl font-display text-accent-blue animate-fade-in-up">🎂 Happy Birthday! 🎂</p>
+    </section>
+
+    <!-- ── SECTION 10: BALLOONS ── -->
+    <section id="balloons" class="min-h-[80vh] px-6 py-20 relative overflow-hidden">
+      <h2 class="relative z-20 font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Pop the Balloons!</h2>
+      <p class="relative z-20 text-white/50 text-center mb-12 text-lg">Click them for a surprise</p>
+
+      <div class="relative h-[400px] md:h-[500px]" id="balloons-container">
+        <!-- Balloons inserted by JS -->
+      </div>
+    </section>
+
+    <!-- ── SECTION 11: SCRATCH CARD ── -->
+    <section id="scratch-card" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Scratch & Discover</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Scratch the card to reveal a hidden message</p>
+
+      <div class="relative w-[320px] h-[200px] md:w-[420px] md:h-[240px] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+        <!-- Hidden message underneath -->
+        <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-midnight-800 to-midnight-700 p-8" id="scratch-message">
+          <p class="text-center text-lg md:text-xl font-bold text-white leading-relaxed">"You are the best thing that ever happened to me" ❤️</p>
+        </div>
+        <!-- Scratch overlay canvas -->
+        <canvas id="scratch-canvas" class="absolute inset-0 w-full h-full cursor-pointer"></canvas>
+      </div>
+      <p class="text-white/30 text-xs mt-4">Use your finger to scratch</p>
+    </section>
+
+    <!-- ── SECTION 12: SPIN WHEEL ── -->
+    <section id="spin-wheel" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Spin the Wheel</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Win a romantic reward</p>
+
+      <div class="relative">
+        <!-- Pointer -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10 text-accent-blue text-3xl drop-shadow-lg">▼</div>
+        <!-- Wheel -->
+        <canvas id="wheel-canvas" width="340" height="340" class="rounded-full shadow-[0_0_60px_rgba(79,124,255,0.2)]"></canvas>
+      </div>
+
+      <button id="spin-btn" class="mt-8 px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-royal text-white font-semibold hover:shadow-[0_0_30px_rgba(79,124,255,0.4)] active:scale-95 transition-all text-lg">
+        🎰 Spin!
+      </button>
+
+      <!-- Result Modal -->
+      <div id="spin-result" class="hidden fixed inset-0 z-[90] flex items-center justify-center">
+        <div class="absolute inset-0 bg-midnight-950/80 backdrop-blur-sm" id="spin-result-overlay"></div>
+        <div class="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center max-w-sm mx-4 shadow-2xl">
+          <p class="text-accent-steel text-sm uppercase tracking-widest mb-2">You Won</p>
+          <h3 class="text-2xl md:text-3xl font-bold text-white mb-4" id="spin-result-text"></h3>
+          <p class="text-white/50 text-sm mb-6">Redeem anytime ❤️</p>
+          <button id="spin-result-close" class="px-6 py-2 rounded-full bg-accent-blue/20 text-accent-blue hover:bg-accent-blue/30 transition-all">Close</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 13: LOVE METER ── -->
+    <section id="love-meter" class="min-h-[80vh] flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Love Meter</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Measuring my love for you...</p>
+
+      <div class="relative w-[280px] h-[180px] md:w-[360px] md:h-[220px]">
+        <svg viewBox="0 0 360 220" class="w-full h-full" id="meter-svg">
+          <!-- Background arc -->
+          <path d="M 30 190 A 150 150 0 0 1 330 190" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="24" stroke-linecap="round" />
+          <!-- Filled arc -->
+          <path d="M 30 190 A 150 150 0 0 1 330 190" fill="none" stroke="url(#meter-gradient)" stroke-width="24" stroke-linecap="round" id="meter-fill" stroke-dasharray="471" stroke-dashoffset="471" />
+          <defs>
+            <linearGradient id="meter-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#2F4FCC" />
+              <stop offset="50%" style="stop-color:#4F7CFF" />
+              <stop offset="100%" style="stop-color:#7FB2FF" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
+          <p class="text-3xl md:text-5xl font-bold text-white" id="meter-value">0%</p>
+          <p class="text-white/40 text-sm mt-1" id="meter-label">Measuring...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 14: PROMISE CARDS ── -->
+    <section id="promise-cards" class="min-h-screen px-6 py-20 relative max-w-5xl mx-auto">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">My Promises to You</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Click each card to see my promise</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="promises-grid">
+        <!-- Promise cards inserted by JS -->
+      </div>
+    </section>
+
+    <!-- ── SECTION 15: ANIMATED QUOTES ── -->
+    <section id="quotes" class="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20 relative">
+      <div class="max-w-2xl mx-auto text-center">
+        <div class="text-5xl md:text-6xl text-white/10 font-display mb-4">"</div>
+        <p class="text-xl md:text-2xl text-white/80 font-light leading-relaxed italic transition-all duration-700" id="quote-text">
+          Loading...
+        </p>
+        <p class="text-accent-blue/60 text-sm mt-6 transition-all duration-700" id="quote-author">— Unknown</p>
+        <div class="flex justify-center gap-2 mt-8">
+          <button id="quote-prev" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+          <button id="quote-next" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 16: PUZZLE ── -->
+    <section id="puzzle" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Piece Us Together</h2>
+      <p class="text-white/50 text-center mb-4 text-lg">Rearrange the pieces to complete the picture</p>
+      <button id="puzzle-hint" class="text-accent-blue text-sm mb-8 hover:underline flex items-center gap-1">
+        <i data-lucide="lightbulb" class="w-4 h-4"></i> Show Hint
+      </button>
+
+      <div class="grid grid-cols-3 gap-1 w-[270px] md:w-[360px] bg-white/5 rounded-xl p-1 border border-white/10" id="puzzle-grid">
+        <!-- 9 puzzle pieces inserted by JS -->
+      </div>
+
+      <div id="puzzle-complete" class="hidden mt-6 text-center">
+        <p class="text-xl font-display text-accent-blue animate-fade-in-up">🧩 You completed our puzzle!</p>
+        <p class="text-white/50 text-sm mt-2">Just like you complete me ❤️</p>
+      </div>
+    </section>
+
+    <!-- ── SECTION 17: QUIZ ── -->
+    <section id="quiz" class="min-h-screen px-6 py-20 relative max-w-2xl mx-auto">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">How Well Do You Know Us?</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Answer these questions about our love story</p>
+
+      <div id="quiz-container" class="space-y-8">
+        <!-- Quiz questions inserted by JS -->
+      </div>
+    </section>
+
+    <!-- ── SECTION 18: MEMORY BOOK ── -->
+    <section id="memory-book" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative">
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-center mb-4 section-heading">Our Memory Book</h2>
+      <p class="text-white/50 text-center mb-12 text-lg">Flip through our memories together</p>
+
+      <div class="relative w-[320px] h-[420px] md:w-[450px] md:h-[550px]" id="book-container" style="perspective: 1200px;">
+        <div class="book" id="book">
+          <!-- Pages inserted by JS -->
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 mt-8">
+        <button id="book-prev" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+        <span class="text-white/40 text-sm" id="book-page-num">Page 1 / 8</span>
+        <button id="book-next" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+      </div>
+    </section>
+
+    <!-- ── SECTION 19: ENDING ── -->
+    <section id="ending" class="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative text-center">
+      <div class="max-w-2xl mx-auto">
+        <p class="text-white/30 text-sm uppercase tracking-[0.3em] mb-8 opacity-0" id="ending-pretext">and finally...</p>
+
+        <h2 class="font-display text-2xl md:text-4xl lg:text-5xl font-semibold text-white/90 leading-relaxed mb-8 opacity-0" id="ending-text">
+          No matter how many Birthdays come, I hope I get to celebrate every one with you.
+        </h2>
+
+        <p class="text-4xl md:text-6xl font-display font-bold text-accent-blue opacity-0 mb-12" id="ending-love" style="text-shadow: 0 0 40px rgba(79, 124, 255,0.5);">
+          I Love You ❤️
+        </p>
+
+        <button id="replay-btn" class="px-8 py-4 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white hover:bg-white/20 active:scale-90 transition-all opacity-0 flex items-center gap-2 mx-auto">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          Replay Our Journey
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- FLOATING NAVIGATION DOCK -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <nav id="floating-dock" class="fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 translate-y-20 opacity-0" style="bottom: max(1.5rem, env(safe-area-inset-bottom));">
+    <div class="flex items-center gap-1 md:gap-2 px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl">
+      <a href="#landing" class="dock-item active" data-section="landing" aria-label="Home"><i data-lucide="home" class="w-4 h-4"></i></a>
+      <a href="#gallery" class="dock-item" data-section="gallery" aria-label="Gallery"><i data-lucide="image" class="w-4 h-4"></i></a>
+      <a href="#timeline" class="dock-item" data-section="timeline" aria-label="Timeline"><i data-lucide="clock" class="w-4 h-4"></i></a>
+      <a href="#love-letter" class="dock-item" data-section="love-letter" aria-label="Letter"><i data-lucide="mail" class="w-4 h-4"></i></a>
+      <a href="#cake" class="dock-item" data-section="cake" aria-label="Cake"><i data-lucide="cake" class="w-4 h-4"></i></a>
+      <a href="#memory-book" class="dock-item" data-section="memory-book" aria-label="Memories"><i data-lucide="book-open" class="w-4 h-4"></i></a>
+      <a href="#gift-boxes" class="dock-item" data-section="gift-boxes" aria-label="Gifts"><i data-lucide="gift" class="w-4 h-4"></i></a>
+      <a href="#ending" class="dock-item" data-section="ending" aria-label="Ending"><i data-lucide="heart" class="w-4 h-4"></i></a>
+    </div>
+  </nav>
+
+  <!-- GSAP + ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- canvas-confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+  <!-- Main Script (plain JS, no bundler) -->
+  <script src="src/script.js"></script>
+</body>
+</html>
