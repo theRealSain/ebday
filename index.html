@@ -116,7 +116,7 @@
   <!-- ═══════════════════════════════════════════════ -->
   <!-- NIGHT MODE TOGGLE -->
   <!-- ═══════════════════════════════════════════════ -->
-  <button id="night-toggle" class="fixed z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all duration-300 group" style="top: max(1.5rem, env(safe-area-inset-top)); right: max(1.5rem, env(safe-area-inset-right));" aria-label="Toggle night mode">
+  <button id="night-toggle" class="fixed z-50 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all duration-300 group" style="top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right));" aria-label="Toggle night mode">
     <i data-lucide="moon" class="w-5 h-5 text-white/80 group-hover:text-accent-steel transition-colors" id="night-icon-moon"></i>
     <i data-lucide="sun" class="w-5 h-5 text-accent-steel hidden" id="night-icon-sun"></i>
   </button>
@@ -124,11 +124,11 @@
   <!-- ═══════════════════════════════════════════════ -->
   <!-- MUSIC PLAYER (Floating) -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div id="music-player" class="fixed z-50 transition-all duration-500" style="top: max(1.5rem, env(safe-area-inset-top)); left: max(1.5rem, env(safe-area-inset-left));">
-    <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl min-w-[200px]" id="music-player-inner">
+  <div id="music-player" class="fixed z-50 transition-all duration-500" style="top: max(1rem, env(safe-area-inset-top)); left: max(1rem, env(safe-area-inset-left));">
+    <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-2.5 sm:p-3 shadow-2xl w-[min(15rem,calc(100vw-6.5rem))] sm:w-auto sm:min-w-[200px]" id="music-player-inner">
       <!-- Compact View -->
-      <div class="flex items-center gap-3">
-        <button id="music-play-btn" class="w-10 h-10 rounded-full bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center hover:bg-accent-blue/40 active:scale-90 transition-all flex-shrink-0" aria-label="Play music">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="music-play-btn" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center hover:bg-accent-blue/40 active:scale-90 transition-all flex-shrink-0" aria-label="Play music">
           <i data-lucide="play" class="w-4 h-4 text-accent-blue" id="music-icon-play"></i>
           <i data-lucide="pause" class="w-4 h-4 text-accent-blue hidden" id="music-icon-pause"></i>
         </button>
@@ -153,6 +153,12 @@
         </div>
         <p class="text-[10px] text-white/30 mt-2 text-center" id="music-time">0:00 / 0:00</p>
       </div>
+    </div>
+
+    <!-- Floating tooltip: visible whenever the music is not playing -->
+    <div id="music-tooltip" class="music-tooltip hidden" role="status">
+      <span class="music-tooltip-arrow"></span>
+      <span>🎵 Tap to play our song</span>
     </div>
   </div>
 
@@ -261,7 +267,7 @@
 
       <div class="relative" id="timeline-container">
         <!-- Center line -->
-        <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 md:-translate-x-1/2" id="timeline-line">
+        <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 md:-translate-y-1/2" id="timeline-line">
           <div class="w-full bg-accent-blue/60 rounded-full transition-all duration-300" id="timeline-line-fill" style="height: 0%;"></div>
         </div>
         <!-- Timeline items get inserted by JS -->
