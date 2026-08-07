@@ -112,23 +112,45 @@ function animateSectionHeading(sectionId) {
 /* ─────────────────────────────────────────────── */
 var audioManager = (function() {
   var audio = null;
-  var _isPlaying = false;
   var _isMuted = false;
   var volume = 0.7;
   var progressCallbacks = [];
+  var stateCallbacks = [];
+  var rafId = null;
+
+  // The <audio> element is the single source of truth for playback state.
+  // A separate boolean would lag, because 'play'/'pause' events fire
+  // asynchronously — anything reading it right after calling play()/pause()
+  // would see the previous state.
+  function isPlaying() { return !!audio && !audio.paused && !audio.ended; }
+
+  function emitState() { stateCallbacks.forEach(function(cb) { cb(isPlaying()); }); }
 
   function loadMusic(src) {
     audio = new Audio(src);
     audio.loop = true;
+    audio.preload = 'auto';
     audio.volume = volume;
-    audio.addEventListener('play', function() { _isPlaying = true; startProgress(); });
-    audio.addEventListener('pause', function() { _isPlaying = false; });
-    audio.addEventListener('ended', function() { _isPlaying = false; });
+    ['play', 'playing', 'pause', 'ended', 'error', 'stalled'].forEach(function(evt) {
+      audio.addEventListener(evt, function() {
+        if (isPlaying()) startProgress();
+        emitState();
+      });
+    });
   }
 
-  function play() { if (audio && !_isPlaying) audio.play().catch(function(){}); }
-  function pause() { if (audio && _isPlaying) audio.pause(); }
-  function toggle() { if (_isPlaying) pause(); else play(); }
+  // Returns a promise so callers can react to autoplay being blocked.
+  function play() {
+    if (!audio) return Promise.resolve(false);
+    if (isPlaying()) return Promise.resolve(true);
+    var p = audio.play();
+    // Older browsers return undefined rather than a promise.
+    if (!p || !p.then) return Promise.resolve(true);
+    return p.then(function() { return true; }, function() { return false; });
+  }
+  function pause() { if (audio && !audio.paused) audio.pause(); }
+  function toggle() { if (isPlaying()) { pause(); return Promise.resolve(false); } return play(); }
+  function onState(cb) { stateCallbacks.push(cb); }
 
   function setVolume(v) {
     volume = v;
@@ -142,20 +164,23 @@ var audioManager = (function() {
   function seek(pct) { if (audio && audio.duration) audio.currentTime = audio.duration * pct; }
 
   function getProgress() {
-    if (!audio || !_isPlaying) return { current: 0, duration: 0, pct: 0 };
-    var current = audio.currentTime || 0, duration = audio.duration || 1;
+    if (!audio || !audio.duration || isNaN(audio.duration)) return { current: 0, duration: 0, pct: 0 };
+    var current = audio.currentTime || 0, duration = audio.duration;
     return { current: current, duration: duration, pct: current / duration };
   }
 
   function onProgress(cb) { progressCallbacks.push(cb); }
 
+  // rafId guards against stacking multiple concurrent loops if playback
+  // events fire more than once.
   function startProgress() {
+    if (rafId !== null) return;
     function update() {
-      if (!_isPlaying) return;
+      if (!isPlaying()) { rafId = null; return; }
       progressCallbacks.forEach(function(cb) { cb(getProgress()); });
-      requestAnimationFrame(update);
+      rafId = requestAnimationFrame(update);
     }
-    update();
+    rafId = requestAnimationFrame(update);
   }
 
   function formatTime(s) {
@@ -164,11 +189,12 @@ var audioManager = (function() {
   }
 
   return {
-    get isPlaying() { return _isPlaying; },
+    get isPlaying() { return isPlaying(); },
     get isMuted() { return _isMuted; },
     loadMusic: loadMusic, play: play, pause: pause, toggle: toggle,
     setVolume: setVolume, mute: mute, unmute: unmute, toggleMute: toggleMute,
-    seek: seek, getProgress: getProgress, onProgress: onProgress, formatTime: formatTime
+    seek: seek, getProgress: getProgress, onProgress: onProgress,
+    onState: onState, formatTime: formatTime
   };
 })();
 
@@ -448,27 +474,53 @@ function initMusicPlayer() {
     }
   }
 
+  // Tracks what the visitor wants, which is NOT the same as what the audio
+  // element is doing: autoplay may be blocked while wantsMusic is true.
+  // Without this, the unlock listener below would restart the music every
+  // time the visitor deliberately paused it.
+  var wantsMusic = true;
+
+  // Repaint from real media events rather than synchronously after
+  // play()/pause(), which would read the pre-change state.
+  audioManager.onState(syncPlayingUI);
+
   playBtn.addEventListener('click', function() {
+    wantsMusic = !audioManager.isPlaying;
     audioManager.toggle();
-    syncPlayingUI();
   });
 
   // Best-effort autoplay on load. Browsers block audio-with-sound until the
   // visitor has interacted with the page at least once — browsers require
-  // this and there is no way around it. As a fallback, catch the very
-  // first interaction of ANY kind (click, tap, scroll, key press) so
-  // playback starts as close to instantly as the browser allows.
+  // this and there is no way around it. As a fallback, catch the first
+  // real user gesture so playback starts as close to instantly as allowed.
   audioManager.play();
   syncPlayingUI();
-  var firstInteractionEvents = ['click', 'touchstart', 'keydown', 'wheel', 'scroll'];
+
+  // Only click/touchstart/keydown count as "user activation" for autoplay
+  // policies — scroll and wheel do not, so they cannot unlock playback.
+  var firstInteractionEvents = ['click', 'touchstart', 'keydown'];
   function playOnFirstInteraction() {
-    if (!audioManager.isPlaying) { audioManager.play(); syncPlayingUI(); }
+    if (!wantsMusic) return removeUnlockListeners();
+    if (audioManager.isPlaying) return removeUnlockListeners();
+    audioManager.play().then(function(ok) {
+      // Only stop listening once playback actually succeeded; a rejected
+      // play() means this gesture was not enough to unlock audio.
+      if (ok) removeUnlockListeners();
+    });
+  }
+  function removeUnlockListeners() {
     firstInteractionEvents.forEach(function(evt) {
       document.removeEventListener(evt, playOnFirstInteraction);
     });
   }
   firstInteractionEvents.forEach(function(evt) {
-    document.addEventListener(evt, playOnFirstInteraction, { once: true, passive: true });
+    document.addEventListener(evt, playOnFirstInteraction, { passive: true });
+  });
+
+  // A page opened in a background tab has play() rejected outright; retry
+  // when it first becomes visible.
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && wantsMusic && !audioManager.isPlaying) audioManager.play();
   });
 
   expandBtn.addEventListener('click', function() {
