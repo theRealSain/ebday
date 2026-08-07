@@ -1039,3 +1039,97 @@ input[type="range"]::-moz-range-thumb {
     height: 280px;
   }
 }
+
+/* ═══════════════════════════════════════════════ */
+/* MUSIC INDICATOR (autoplay blocked)               */
+/* ═══════════════════════════════════════════════ */
+
+/* Two expanding rings + a warm glow on the play button, so the control reads
+   as "press me" without a tooltip getting in the way of the page. */
+#music-play-btn.music-nudge {
+  background: rgba(79, 124, 255, 0.55);
+  border-color: rgba(214, 236, 255, 0.9);
+  animation: music-nudge-glow 1.6s ease-in-out infinite;
+}
+
+#music-play-btn.music-nudge::before,
+#music-play-btn.music-nudge::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 2px solid rgba(127, 178, 255, 0.85);
+  animation: music-nudge-ring 1.8s ease-out infinite;
+  pointer-events: none;
+}
+#music-play-btn.music-nudge::after { animation-delay: 0.9s; }
+
+#music-play-btn.music-nudge #music-icon-play {
+  color: #fff;
+}
+
+@keyframes music-nudge-ring {
+  0%   { transform: scale(1);   opacity: 0.9; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes music-nudge-glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(79, 124, 255, 0.5); }
+  50%      { box-shadow: 0 0 28px rgba(79, 124, 255, 0.95), 0 0 55px rgba(79, 124, 255, 0.45); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #music-play-btn.music-nudge { animation: none; box-shadow: 0 0 20px rgba(79, 124, 255, 0.7); }
+  #music-play-btn.music-nudge::before,
+  #music-play-btn.music-nudge::after { animation: none; opacity: 0.8; }
+}
+
+/* ═══════════════════════════════════════════════ */
+/* MUSIC TOOLTIP (shown while paused)               */
+/* ═══════════════════════════════════════════════ */
+.music-tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.75rem;
+  background: rgba(79, 124, 255, 0.92);
+  border: 1px solid rgba(214, 236, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(3, 6, 23, 0.45);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: music-tooltip-in 0.4s ease-out both,
+             music-tooltip-bob 2.4s ease-in-out 0.4s infinite;
+}
+
+.music-tooltip-arrow {
+  position: absolute;
+  top: -5px;
+  left: 12px;
+  width: 9px;
+  height: 9px;
+  background: rgba(79, 124, 255, 0.92);
+  border-left: 1px solid rgba(214, 236, 255, 0.35);
+  border-top: 1px solid rgba(214, 236, 255, 0.35);
+  transform: rotate(45deg);
+}
+
+@keyframes music-tooltip-in {
+  0%   { opacity: 0; transform: translateY(-6px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes music-tooltip-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-tooltip { animation: music-tooltip-in 0.01s both; }
+}

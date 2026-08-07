@@ -464,14 +464,36 @@ function initMusicPlayer() {
   var progressBar = document.getElementById('music-progress-bar');
   var progressFill = document.getElementById('music-progress');
   var timeText = document.getElementById('music-time');
+  var tooltip = document.getElementById('music-tooltip');
   var isExpanded = false;
+
+  // Attention pulse on the play button, shown only while autoplay is blocked
+  // and dropped for good once the visitor has taken control of playback.
+  var hintDismissed = false;
+  function showHint() {
+    if (hintDismissed || audioManager.isPlaying) return;
+    playBtn.classList.add('music-nudge');
+  }
+  function hideHint(permanent) {
+    if (permanent) hintDismissed = true;
+    playBtn.classList.remove('music-nudge');
+  }
+
+  // The tooltip tracks playback state only, so it comes back if the visitor
+  // pauses — unlike the pulse, which is a one-time nudge.
+  function syncTooltip() {
+    if (!tooltip) return;
+    tooltip.classList.toggle('hidden', audioManager.isPlaying);
+  }
 
   function syncPlayingUI() {
     if (audioManager.isPlaying) {
       iconPlay.classList.add('hidden'); iconPause.classList.remove('hidden'); playBtn.classList.add('animate-pulse-glow');
+      hideHint(false);
     } else {
       iconPlay.classList.remove('hidden'); iconPause.classList.add('hidden'); playBtn.classList.remove('animate-pulse-glow');
     }
+    syncTooltip();
   }
 
   // Tracks what the visitor wants, which is NOT the same as what the audio
@@ -486,6 +508,7 @@ function initMusicPlayer() {
 
   playBtn.addEventListener('click', function() {
     wantsMusic = !audioManager.isPlaying;
+    hideHint(true);
     audioManager.toggle();
   });
 
@@ -493,7 +516,9 @@ function initMusicPlayer() {
   // visitor has interacted with the page at least once — browsers require
   // this and there is no way around it. As a fallback, catch the first
   // real user gesture so playback starts as close to instantly as allowed.
-  audioManager.play();
+  audioManager.play().then(function(ok) {
+    if (!ok) showHint();
+  });
   syncPlayingUI();
 
   // Only click/touchstart/keydown count as "user activation" for autoplay
@@ -843,8 +868,9 @@ function initTimeline() {
   });
 
   document.querySelectorAll('.timeline-item').forEach(function(item) {
-    var side = item.classList.contains('left') ? -50 : 50;
-    gsap.fromTo(item, { x: side, y: 50, opacity: 0 }, { scrollTrigger: { trigger: item, start: 'top 80%' }, x: 0, y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' });
+    // Vertical only: a horizontal offset pushed cards past the viewport edge
+    // and left the page scrollable sideways on narrow screens.
+    gsap.fromTo(item, { y: 60, opacity: 0 }, { scrollTrigger: { trigger: item, start: 'top 85%' }, y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' });
     gsap.fromTo(item.querySelector('.dot'), { scale: 0, backgroundColor: '#ffffff' }, { scrollTrigger: { trigger: item, start: 'top 60%' }, scale: 1, backgroundColor: '#4F7CFF', duration: 0.4, ease: 'back.out(1.7)' });
   });
 }
